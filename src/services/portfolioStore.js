@@ -1,6 +1,12 @@
+
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const SUPABASE_TABLE = import.meta.env.VITE_SUPABASE_TABLE || 'portfolio_students';
+
+console.log('SUPABASE_URL:', SUPABASE_URL);
+console.log('SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY);
+console.log('SUPABASE_TABLE:', SUPABASE_TABLE);
 
 export const hasRemotePortfolioStore = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
