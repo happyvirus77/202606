@@ -72,8 +72,25 @@ function cleanPortfolioStudents(students) {
   return students.filter((student) => !REMOVED_PORTFOLIO_IDS.has(student.id)).map(cleanPortfolioStudent);
 }
 
+function cleanSavedPortfolioStudent(student) {
+  const category = student.category?.filter((item) => !REMOVED_LABELS.has(item)) || ['React'];
+  const skills = student.skills?.filter((item) => !REMOVED_LABELS.has(item)) || ['React'];
+
+  return {
+    ...student,
+    description: student.description?.replaceAll('풀스택', '통합형') || '',
+    galleryUrl: student.galleryUrl || student.deployUrl,
+    category: category.length > 0 ? category : ['React'],
+    skills: skills.length > 0 ? skills : ['React'],
+  };
+}
+
+function cleanSavedPortfolioStudents(students) {
+  return students.filter((student) => !REMOVED_PORTFOLIO_IDS.has(student.id)).map(cleanSavedPortfolioStudent);
+}
+
 function mergeWithInitialStudents(savedStudents) {
-  const cleanedSavedStudents = cleanPortfolioStudents(savedStudents);
+  const cleanedSavedStudents = cleanSavedPortfolioStudents(savedStudents);
   const savedIds = new Set(cleanedSavedStudents.map((student) => student.id));
   const missingInitialStudents = cleanPortfolioStudents(initialStudents).filter((student) => !savedIds.has(student.id));
 
