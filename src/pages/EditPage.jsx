@@ -39,6 +39,8 @@ export default function EditPage({ students, onUpdate }) {
   const navigate = useNavigate();
   const student = students.find((item) => item.id === id);
   const [submitted, setSubmitted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [form, setForm] = useState(() => (student ? toForm(student) : null));
 
   const previewSkills = useMemo(() => splitList(form?.skills || '').slice(0, 5), [form?.skills]);
@@ -86,9 +88,10 @@ export default function EditPage({ students, onUpdate }) {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitted(true);
+    setSaveError('');
 
     if (!form.name.trim() || !form.title.trim() || !form.description.trim() || !form.skills.trim()) {
       return;
@@ -115,7 +118,15 @@ export default function EditPage({ students, onUpdate }) {
       features: splitList(form.features).length > 0 ? splitList(form.features) : student.features,
     };
 
-    onUpdate(updatedPortfolio);
+    setIsSaving(true);
+    const saved = await onUpdate(updatedPortfolio);
+    setIsSaving(false);
+
+    if (!saved) {
+      setSaveError('공용 저장소에 저장하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
     navigate(`/portfolio/${student.id}`);
   };
 
@@ -264,11 +275,12 @@ export default function EditPage({ students, onUpdate }) {
             <button type="button" className="ghost-button large" onClick={() => setForm(toForm(student))}>
               되돌리기
             </button>
-            <button type="submit" className="primary-button large">
+            <button type="submit" className="primary-button large" disabled={isSaving}>
               <Save size={18} />
-              수정 저장
+              {isSaving ? '저장 중...' : '수정 저장'}
             </button>
           </div>
+          {saveError && <small>{saveError}</small>}
         </form>
 
         <aside className="register-preview">

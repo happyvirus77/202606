@@ -63,6 +63,8 @@ export default function RegisterPage({ onRegister, students }) {
   const navigate = useNavigate();
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const previewSkills = useMemo(() => splitList(form.skills).slice(0, 5), [form.skills]);
   const selectedSkills = useMemo(() => splitList(form.skills), [form.skills]);
@@ -103,9 +105,10 @@ export default function RegisterPage({ onRegister, students }) {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitted(true);
+    setSaveError('');
 
     if (!form.name.trim() || !form.title.trim() || !form.description.trim() || !form.skills.trim()) {
       return;
@@ -138,7 +141,15 @@ export default function RegisterPage({ onRegister, students }) {
       features: splitList(form.features).length > 0 ? splitList(form.features) : ['반응형 UI', '검색 친화적 정보 구조', '프로젝트 상세 페이지', '사이트 링크 연결'],
     };
 
-    onRegister(newPortfolio);
+    setIsSaving(true);
+    const saved = await onRegister(newPortfolio);
+    setIsSaving(false);
+
+    if (!saved) {
+      setSaveError('공용 저장소에 저장하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
     navigate(`/portfolio/${id}`);
   };
 
@@ -327,11 +338,12 @@ export default function RegisterPage({ onRegister, students }) {
             <button type="button" className="ghost-button large" onClick={() => setForm(initialForm)}>
               초기화
             </button>
-            <button type="submit" className="primary-button large">
+            <button type="submit" className="primary-button large" disabled={isSaving}>
               <Save size={18} />
-              등록하기
+              {isSaving ? '저장 중...' : '등록하기'}
             </button>
           </div>
+          {saveError && <small>{saveError}</small>}
         </form>
 
         <aside className="register-preview">

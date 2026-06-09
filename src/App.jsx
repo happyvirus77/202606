@@ -157,27 +157,29 @@ export default function App() {
 
   const persistPortfolio = async (student) => {
     if (!hasRemotePortfolioStore) {
-      return;
+      return true;
     }
 
     try {
       await saveRemoteStudent(student);
       setRemoteStoreError('');
+      return true;
     } catch (error) {
       setRemoteStoreError(error.message);
+      return false;
     }
   };
 
-  const handleRegisterPortfolio = (student) => {
+  const handleRegisterPortfolio = async (student) => {
     setPortfolioStudents((currentStudents) => [student, ...currentStudents]);
-    persistPortfolio(student);
+    return persistPortfolio(student);
   };
 
-  const handleUpdatePortfolio = (updatedStudent) => {
+  const handleUpdatePortfolio = async (updatedStudent) => {
     setPortfolioStudents((currentStudents) =>
       currentStudents.map((student) => (student.id === updatedStudent.id ? updatedStudent : student)),
     );
-    persistPortfolio(updatedStudent);
+    return persistPortfolio(updatedStudent);
   };
 
   return (
